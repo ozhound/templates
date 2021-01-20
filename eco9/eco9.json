@@ -1,54 +1,136 @@
 {
+    "type": "srcds",
     "data": {
+        "CreateMeteor": {
+            "type": "option",
+            "desc": "Is the Meteor event Active",
+            "display": "Meteor",
+            "required": true,
+            "value": "true",
+            "userEdit": true,
+            "options": [
+                {
+                    "value": "true",
+                    "display": "Yes"
+                },
+                {
+                    "value": "false",
+                    "display": "No"
+                }
+            ]
+        },
+        "MeteorImpactDays": {
+            "type": "integer",
+            "desc": "TIme in days it will take the Meteor to impact (no effect if meteor isnt active)",
+            "display": "Time to Impact",
+            "required": true,
+            "value": "30",
+            "userEdit": true
+        },
         "ServerName": {
+            "type": "string",
             "desc": "Server Name",
             "display": "Name the Server",
             "required": true,
             "value": "",
+            "userEdit": true
+        },
+        "collaboration": {
+            "type": "option",
+            "desc": "Collaborative Settings",
+            "display": "Player Experience Gain",
+            "required": true,
+            "value": "NoCollaboration",
             "userEdit": true,
-            "type": "string"
+            "options": [
+                {
+                    "value": "NoCollaboration",
+                    "display": "Solo - x5 XP Gain"
+                },
+                {
+                    "value": "LowCollaboration",
+                    "display": "3-10 Players - x2 XP Gain"
+                },
+                {
+                    "value": "MediumCollaboration",
+                    "display": "10-30 Players - 1x XP Gain"
+                },
+                {
+                    "value": "HighCollaboration",
+                    "display": "30+ Players - 1x XP, Slower Specialty Gain"
+                }
+            ]
         },
         "ip": {
+            "type": "string",
             "desc": "What IP to bind the Eco game server to.",
             "display": "IP",
             "required": true,
-            "value": "0.0.0.0",
-            "type": "string"
+            "value": "0.0.0.0"
         },
         "maxcon": {
+            "type": "integer",
             "desc": "Maximum Connections to Server (Player Limit, -1 is unlimited)",
             "display": "Max Connections",
             "required": true,
             "value": "-1",
-            "userEdit": true,
-            "type": "integer"
+            "userEdit": true
         },
         "password": {
+            "type": "string",
             "desc": "Password for the Eco Game Server, which will be required for login.",
             "display": "Password",
-            "value": "",
-            "type": "string"
+            "value": ""
         },
         "port": {
+            "type": "integer",
             "desc": "What port to bind the server to",
             "display": "Game-Server Port, port forward for external access",
             "required": true,
-            "value": "3000",
-            "type": "integer"
+            "value": "3000"
         },
         "upnp": {
+            "type": "boolean",
             "desc": "Enable pnp?",
             "display": "Do you wish to Enable uPnP?",
             "required": true,
-            "value": "false",
-            "type": "boolean"
+            "value": "false"
         },
         "webServerPort": {
+            "type": "integer",
             "desc": "What port to bind the Eco web server to.",
             "display": "Web-Server Port",
             "required": true,
-            "value": "3001",
-            "type": "integer"
+            "value": "3001"
+        },
+        "worldsize-x": {
+            "type": "option",
+            "desc": "World Size in m2",
+            "display": "World Size",
+            "required": true,
+            "value": "64",
+            "options": [
+                {
+                    "value": "64",
+                    "display": "640m2"
+                },
+                {
+                    "value": "84",
+                    "display": "840m2"
+                },
+                {
+                    "value": "100",
+                    "display": "1000m2"
+                },
+                {
+                    "value": "144",
+                    "display": "1440m2"
+                },
+                {
+                    "value": "188",
+                    "display": "1880m2"
+                }
+            ]
         }
     },
     "display": "Eco 9 Beta Version",
@@ -78,16 +160,37 @@
         {
             "metadata": {},
             "target": "Configs/Network.eco",
-            "text": "{\n  \"PublicServer\": false,\n  \"Password\": \"${password}\",\n  \"Description\": \"${ServerName}\",\n  \"IPAddress\": \"${ip}\",\n  \"GameServerPort\": ${port},\n  \"WebServerPort\": ${webServerPort},\n  \"Rate\": 10,\n  \"MaxConnections\": ${maxcon},\n \"UPnPEnabled\": ${upnp}\n}",
+            "text": "{\n  \"PublicServer\": false,\n  \"Password\": \"${password}\",\n  \"Description\": \"${ServerName}\",\n  \"IPAddress\": \"${ip}\",\n  \"GameServerPort\": ${port},\n  \"WebServerPort\": ${webServerPort},\n  \"Rate\": 30,\n  \"MaxConnections\": ${maxcon},\n \"UPnPEnabled\": ${upnp}\n}",
+            "type": "writefile"
+        },
+        {
+            "target": "Configs/WorldGenerator.eco",
+            "text": "{\n  \"ConfigVersion\": 1,\n  \"$id\": \"1\",  \n  \"Dimensions\": {\n    \"x\": ${worldsize-x},\n    \"y\": ${worldsize-x}\n  }\n}",
+            "type": "writefile"
+        },
+        {
+            "target": "Configs/Difficulty.eco",
+            "text": "{\n  \"CollaborationPreset\": \"${collaboration}\"\n}",
+            "type": "writefile"
+        },
+        {
+            "target": "Configs/Disasters.eco",
+            "text": "{\n  \"CreateMeteor\": ${CreateMeteor},\n  \"MeteorImpactDays\": ${MeteorImpactDays}\n}",
             "type": "writefile"
         }
     ],
-    "type": "srcds",
     "run": {
         "command": "./EcoServer",
+        "pre": [
+            {
+                "commands": [
+                    "steamcmd/steamcmd.sh +login anonymous +force_install_dir ../ +app_update 739590 +quit"
+                ],
+                "type": "command"
+            }
+        ],
         "stopCode": 2,
         "environmentVars": {},
-        "pre": [],
         "post": []
     },
     "supportedEnvironments": [
